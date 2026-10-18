@@ -1,6 +1,7 @@
 extend class LSP_EventHandler
 {
     ui Actor camera;
+    ui Color playerColor;
 
     override void RenderUnderlay(RenderEvent event)
     {
@@ -19,6 +20,8 @@ extend class LSP_EventHandler
 
         //Console.printf("viewY: %i", viewY);
         //Console.printf("origin: %i, %i", origin.X, origin.Y);
+
+        playerColor = players[ConsolePlayer].GetColor() + 4278190080;
 
         let statusbar_height = (Screen.GetHeight() - Statusbar.GetTopOfStatusbar());
 
@@ -51,7 +54,6 @@ extend class LSP_EventHandler
                     TextureID texture = GetTexture(pingList[i]);
                     Vector2 clampedCoordinates = ClampToTexture(texture, draw_pos);
 
-                    Color color = players[ConsolePlayer].GetColor() + 4278190080; 
                     
                     Screen.DrawTexture(
                         texture,
@@ -59,7 +61,7 @@ extend class LSP_EventHandler
                         clampedCoordinates.X,
                         clampedCoordinates.Y,
                         DTA_Alpha, 1,
-                        DTA_Color, color
+                        DTA_Color, playerColor
                     );
 
                     if (pingList[i].targetActor)
@@ -120,16 +122,5 @@ extend class LSP_EventHandler
         //console.printf("offsetX: %i", offsetX);
 
         return clampedCoordinates;
-    }
-
-    ui void RenderWheel()
-    {
-        Screen.DrawText(
-            bigfont,
-            Font.CR_UNTRANSLATED,
-            Screen.GetWidth() / 2,
-            Screen.GetHeight() / 2,
-            "Wheel or something"
-        );
     }
 }

@@ -8,7 +8,7 @@ class LSP_EventHandler : EventHandler
     ui bool incrementingTimer;
     ui int wheelKeyChar;
     ui bool renderingWheel;
-    ui Vector2 mouseDelta;
+    ui Vector2 mousePosition;
 
     override void OnRegister()
     {
@@ -34,7 +34,12 @@ class LSP_EventHandler : EventHandler
                 return false;
             }
             // Lock mouse movement
-            if (event.Type == InputEvent.Type_Mouse) return true;
+            if (event.Type == InputEvent.Type_Mouse)
+            {
+                mousePosition.X += event.MouseX;
+                mousePosition.Y -= event.MouseY;
+                return true;
+            }
         }
 
         if (bindings.GetBinding(event.KeyScan) == "LSP_PingKey")
@@ -50,7 +55,7 @@ class LSP_EventHandler : EventHandler
             }
             else if (event.Type == InputEvent.Type_KeyUp)
             {
-                Console.printf("Ping released!");
+                //Console.printf("Ping released!");
                 SendNetworkEvent("LSP_WheelClosed");
                 SendInterfaceEvent(ConsolePlayer, "LSP_Ping");
                 incrementingTimer = false;
@@ -70,6 +75,10 @@ class LSP_EventHandler : EventHandler
         if (timer == 10)
         {
             //Console.printf("One second!");
+            mousePosition = (
+                Screen.GetWidth() / 2,
+                Screen.GetHeight() / 2
+            );
             renderingWheel = true;
         }
     }
