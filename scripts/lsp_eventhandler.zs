@@ -8,6 +8,7 @@ class LSP_EventHandler : EventHandler
     ui bool incrementingTimer;
     ui int wheelKeyChar;
     ui bool renderingWheel;
+    ui Vector2 mouseDelta;
 
     override void OnRegister()
     {
@@ -22,6 +23,20 @@ class LSP_EventHandler : EventHandler
     // Handles holding down the ping button
     override bool InputProcess(InputEvent event)
     {
+        if (renderingWheel)
+        {
+            if (bindings.GetBinding(event.KeyScan) == "LSP_PingKey" && event.Type == InputEvent.Type_KeyUp)
+            {
+                // Do whichever is selected;
+                renderingWheel = false;
+                incrementingTimer = false;
+                timer = 0;
+                return false;
+            }
+            // Lock mouse movement
+            if (event.Type == InputEvent.Type_Mouse) return true;
+        }
+
         if (bindings.GetBinding(event.KeyScan) == "LSP_PingKey")
         {
             // Cache the keyChar for the UiProcess
@@ -41,7 +56,7 @@ class LSP_EventHandler : EventHandler
                 incrementingTimer = false;
                 timer = 0;
             }
-        }
+        }        
         return false;
     }
 
@@ -56,7 +71,6 @@ class LSP_EventHandler : EventHandler
         {
             //Console.printf("One second!");
             renderingWheel = true;
-            SendNetworkEvent("LSP_WheelOpened");
         }
     }
 
@@ -86,46 +100,6 @@ class LSP_EventHandler : EventHandler
 
             SendInterfaceEvent(ConsolePlayer, "LSP_PingAdded", ping.GetNetworkID());
         }
-
-        // Wheel handling
-        else if (event.Name == "LSP_WheelOpened")
-        {
-            if (event.Player == ConsolePlayer)
-            {
-                self.IsUiProcessor = true;
-                self.RequireMouse = true;
-            }
-        }
-        else if (event.Name == "LSP_WheelClosed")
-        {
-            if (event.Player == ConsolePlayer)
-            {
-                self.IsUiProcessor = false;
-                self.RequireMouse = false;
-            }
-        }
-    }
-
-    override bool UiProcess(UiEvent event)
-    {
-        //Console.printf("keychar: %i, %i", event.KeyChar, wheelKeyChar);
-        //Console.printf("event.Type: %i", event.Type);
-        // Cached ping key
-        // 3 and 11 are hardcoded values for releasing the keys
-        if (event.KeyChar == wheelKeyChar && (
-            event.Type == 3 ||
-            event.Type == 11
-            ))
-        {
-            Console.printf("Key released!");
-            // Ping key is released; wheel is closed
-            renderingWheel = false;
-            timer = 0;
-            incrementingTimer = false;
-            SendNetworkEvent("LSP_WheelClosed");
-        }
-
-        return false;
     }
 
     override void InterfaceProcess(ConsoleEvent event)
