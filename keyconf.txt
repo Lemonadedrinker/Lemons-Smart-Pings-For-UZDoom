@@ -1,0 +1,5 @@
+AddKeySection "Lemon's Smart Pings" LemonsSmartPings
+
+AddMenuKey "Ping" LSP_PingKey
+
+Alias LSP_PingKey "event LSP_PingKey"
