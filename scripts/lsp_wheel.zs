@@ -12,15 +12,14 @@ extend class LSP_EventHandler
             "Wheel or something"
         );
 
-        TextureID texture = TexMan.CheckForTexture("PING");
+        String cursor = CVar.GetCVar("vid_cursor").GetString();
+        TextureID texture = TexMan.CheckForTexture(cursor);
 
         Screen.DrawTexture(
             texture,
             false,
             mousePosition.X,
-            mousePosition.Y,
-            DTA_Alpha, 1,
-            DTA_Color, playerColor
+            mousePosition.Y
         );
     }
 }

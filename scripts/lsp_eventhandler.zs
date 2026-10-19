@@ -36,8 +36,8 @@ class LSP_EventHandler : EventHandler
             // Lock mouse movement
             if (event.Type == InputEvent.Type_Mouse)
             {
-                mousePosition.X += event.MouseX;
-                mousePosition.Y -= event.MouseY;
+                mousePosition.X += event.MouseX * 2;
+                mousePosition.Y -= event.MouseY * 2;
                 return true;
             }
         }
