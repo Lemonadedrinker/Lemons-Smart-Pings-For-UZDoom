@@ -46,37 +46,42 @@ extend class LSP_EventHandler
                 // Now you can project as much as you like, just like this:
                 proj.ProjectWorldPos(pingList[i].pos);
 
-                if(proj.IsInFront())
+                Vector2 draw_pos = proj.ProjectToCustom(origin, viewSize);;
+                draw_pos.Y -= statusbarOffset / 2;
+
+                Console.printf("Raw draw pos X: %i, Y: %i", draw_pos.X, draw_pos.Y);
+
+                if(!proj.IsInFront())
                 {                    
-                    let draw_pos = proj.ProjectToCustom(origin, viewSize);
-                    draw_pos.Y -= statusbarOffset / 2;
+                    //Console.printf("Behind!");
+                    draw_pos = ClampBehindPings(draw_pos);
+                }
 
-                    TextureID texture = GetTexture(pingList[i]);
-                    Vector2 clampedCoordinates = ClampToTexture(texture, draw_pos);
+                TextureID texture = GetTexture(pingList[i]);
+                Vector2 clampedCoordinates = ClampToTexture(texture, draw_pos);
 
-                    
+                
+                Screen.DrawTexture(
+                    texture,
+                    false,
+                    clampedCoordinates.X,
+                    clampedCoordinates.Y,
+                    DTA_Alpha, 1,
+                    DTA_Color, playerColor
+                );
+
+                if (pingList[i].targetActor)
+                {
+                    TextureID icon;
+                    bool isMirrored;
+                    [icon, isMirrored] = pingList[i].targetActor.spawnstate.GetSpriteTexture(0);
+                    // Draw little sprite
                     Screen.DrawTexture(
-                        texture,
+                        icon,
                         false,
                         clampedCoordinates.X,
-                        clampedCoordinates.Y,
-                        DTA_Alpha, 1,
-                        DTA_Color, playerColor
+                        clampedCoordinates.Y
                     );
-
-                    if (pingList[i].targetActor)
-                    {
-                        TextureID icon;
-                        bool isMirrored;
-                        [icon, isMirrored] = pingList[i].targetActor.spawnstate.GetSpriteTexture(0);
-                        // Draw little sprite
-                        Screen.DrawTexture(
-                            icon,
-                            false,
-                            clampedCoordinates.X,
-                            clampedCoordinates.Y
-                        );
-                    }
                 }
             }
             else
@@ -122,5 +127,22 @@ extend class LSP_EventHandler
         //console.printf("offsetX: %i", offsetX);
 
         return clampedCoordinates;
+    }
+
+    ui Vector2 ClampBehindPings(Vector2 draw_pos)
+    {
+        int offsetX, offsetY, viewX, viewY;
+        [offsetX, offsetY, viewX, viewY] = Screen.GetViewWindow();
+
+        Vector2 returnPos;
+
+        if (draw_pos.X > viewX / 2) returnPos.X = 0;
+        else returnPos.X = viewX;
+
+        returnPos.Y = viewY - draw_pos.Y;
+
+        Console.printf("Coordinates X: %f, Y: %f", returnPos.X, returnPos.Y);
+
+        return returnPos;
     }
 }
